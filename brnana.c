@@ -195,8 +195,9 @@ static int brnana_set_mac_address(struct net_device *dev, void *p)
 	 */
 	if (!ether_addr_equal(dev->dev_addr, addr->sa_data)) {
         pr_info("C( o . o ) ╯ brnana: bridge %d set mac : %pM\n",
-                br->br_id, addr);
+                br->br_id, addr->sa_data);
 		memcpy(br->mac_addr, addr, ETH_ALEN);
+        eth_hw_addr_set(dev, addr->sa_data);
 	}
 
 	spin_unlock_bh(&br->lock);

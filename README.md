@@ -28,6 +28,30 @@ $ ip addr
     link/ether 00:00:00:00:00:00 brd ff:ff:ff:ff:ff:ff
 ```
 
+## Set a Custom MAC Address
+
+```sh
+# Bring the interface down (required before changing MAC)
+sudo ip link set brnana0 down
+
+# Set a new MAC address
+sudo ip link set brnana0 address 02:11:22:33:44:55
+
+# Bring the interface up
+sudo ip link set brnana0 up
+```
+* Note: brnana will reject invalid MAC addresses (e.g., multicast or all-zero).
+
+Check MAC Address
+```
+$ ip link show brnana0
+13: brnana0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel state UNKNOWN mode DEFAULT group default qlen 1000
+    link/ether 02:11:22:33:44:55 brd ff:ff:ff:ff:ff:ff
+```
+When a MAC address is set via ip, the kernel module logs it:
+```
+[ 5076.512850] C( o . o ) ╯ brnana: bridge 0 set mac : 02:11:22:33:44:55
+```
 ## Testing with Dummy Interfaces
 ```sh
 # Load the dummy network driver (if not already loaded)
