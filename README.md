@@ -3,6 +3,12 @@ C(  o  .  o  ) ╯   brnana - the minimal bridge with extra potassium!🍌
 
 A lightweight Linux kernel module that implements a custom Ethernet bridge with basic port enslaving and forwarding support.
 
+## Kernel Compatibility
+
+brnana is developed and tested on:
+
+- **Linux kernel 6.8.0-60-generic**
+
 ## Build
 ```
 $ make
