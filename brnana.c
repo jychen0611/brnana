@@ -1,4 +1,4 @@
-/** 
+/**
  * @file brnana.c
  * @brief Core implementation of the brnana bridge module
  */
@@ -52,16 +52,16 @@ static inline struct brnana_if *dev_get_brnana_if(struct net_device *dev)
  */
 static int brnana_dev_open(struct net_device *dev)
 {
-	struct brnana_if *br = dev_get_brnana_if(dev);
-	pr_info("C( o . o ) ╯ brnana: bridge %d open\n", br->br_id);
+    struct brnana_if *br = dev_get_brnana_if(dev);
+    pr_info("C( o . o ) ╯ brnana: bridge %d open\n", br->br_id);
 
-	/* Refresh the device's feature flags based on current configuration */
-	netdev_update_features(dev);
+    /* Refresh the device's feature flags based on current configuration */
+    netdev_update_features(dev);
 
-	/* Start the transmit queue for the interface */
-	netif_start_queue(dev);	
+    /* Start the transmit queue for the interface */
+    netif_start_queue(dev);
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -78,13 +78,13 @@ static int brnana_dev_open(struct net_device *dev)
  */
 static int brnana_dev_stop(struct net_device *dev)
 {
-	struct brnana_if *br = dev_get_brnana_if(dev);
-	pr_info("C( o . o ) ╯ brnana: bridge %d stop\n", br->br_id);
+    struct brnana_if *br = dev_get_brnana_if(dev);
+    pr_info("C( o . o ) ╯ brnana: bridge %d stop\n", br->br_id);
 
-	/* Stop the transmit queue for the interface */
-	netif_stop_queue(dev);
+    /* Stop the transmit queue for the interface */
+    netif_stop_queue(dev);
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -100,10 +100,10 @@ static int brnana_dev_stop(struct net_device *dev)
  */
 static int brnana_dev_init(struct net_device *dev)
 {
-	struct brnana_if *br = dev_get_brnana_if(dev);
-	pr_info("C( o . o ) ╯ brnana: bridge %d init\n", br->br_id);
+    struct brnana_if *br = dev_get_brnana_if(dev);
+    pr_info("C( o . o ) ╯ brnana: bridge %d init\n", br->br_id);
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -116,8 +116,8 @@ static int brnana_dev_init(struct net_device *dev)
  */
 static void brnana_dev_uninit(struct net_device *dev)
 {
-	struct brnana_if *br = dev_get_brnana_if(dev);
-	pr_info("C( o . o ) ╯ brnana: bridge %d uninit\n", br->br_id);
+    struct brnana_if *br = dev_get_brnana_if(dev);
+    pr_info("C( o . o ) ╯ brnana: bridge %d uninit\n", br->br_id);
 }
 
 /**
@@ -143,12 +143,12 @@ static void brnana_dev_uninit(struct net_device *dev)
  */
 static netdev_tx_t brnana_dev_xmit(struct sk_buff *skb, struct net_device *dev)
 {
-	struct brnana_if *br = dev_get_brnana_if(dev);
-	pr_info("C( o . o ) ╯ brnana: bridge %d start xmit\n", br->br_id);
+    struct brnana_if *br = dev_get_brnana_if(dev);
+    pr_info("C( o . o ) ╯ brnana: bridge %d start xmit\n", br->br_id);
 
-	/* No forwarding implemented yet — drop or ignore the packet */
+    /* No forwarding implemented yet — drop or ignore the packet */
 
-	return NETDEV_TX_OK;
+    return NETDEV_TX_OK;
 }
 
 /**
@@ -167,42 +167,42 @@ static netdev_tx_t brnana_dev_xmit(struct sk_buff *skb, struct net_device *dev)
  */
 static int brnana_set_mac_address(struct net_device *dev, void *p)
 {
-	struct brnana_if *br = dev_get_brnana_if(dev);
-	struct sockaddr *addr = p;
+    struct brnana_if *br = dev_get_brnana_if(dev);
+    struct sockaddr *addr = p;
 
     /**
      * Validate that the provided address is a valid unicast Ethernet MAC.
      * Reject multicast or all-zero addresses.
      */
-	if (!is_valid_ether_addr(addr->sa_data))
-		return -EADDRNOTAVAIL;
+    if (!is_valid_ether_addr(addr->sa_data))
+        return -EADDRNOTAVAIL;
 
-	/**
-	 * Ensure that the interface is already registered before allowing changes.
-	 * Prevents MAC changes during device setup stages.
-	 */
-	if (dev->reg_state != NETREG_REGISTERED)
-		return -EBUSY;
+    /**
+     * Ensure that the interface is already registered before allowing changes.
+     * Prevents MAC changes during device setup stages.
+     */
+    if (dev->reg_state != NETREG_REGISTERED)
+        return -EBUSY;
 
-	/**
-	 * Protect concurrent access to the MAC address with a spinlock.
-	 * This ensures safe modification even in softirq context.
-	 */
-	spin_lock_bh(&br->lock);
+    /**
+     * Protect concurrent access to the MAC address with a spinlock.
+     * This ensures safe modification even in softirq context.
+     */
+    spin_lock_bh(&br->lock);
 
-	/**
-	 * Only update the address if it is different from the current one.
-	 */
-	if (!ether_addr_equal(dev->dev_addr, addr->sa_data)) {
-        pr_info("C( o . o ) ╯ brnana: bridge %d set mac : %pM\n",
-                br->br_id, addr->sa_data);
-		memcpy(br->mac_addr, addr, ETH_ALEN);
+    /**
+     * Only update the address if it is different from the current one.
+     */
+    if (!ether_addr_equal(dev->dev_addr, addr->sa_data)) {
+        pr_info("C( o . o ) ╯ brnana: bridge %d set mac : %pM\n", br->br_id,
+                addr->sa_data);
+        memcpy(br->mac_addr, addr, ETH_ALEN);
         eth_hw_addr_set(dev, addr->sa_data);
-	}
+    }
 
-	spin_unlock_bh(&br->lock);
+    spin_unlock_bh(&br->lock);
 
-	return 0;
+    return 0;
 }
 
 /**
@@ -224,9 +224,9 @@ static int brnana_add_slave(struct net_device *dev,
                             struct net_device *slave_dev,
                             struct netlink_ext_ack *extack)
 {
-	struct brnana_if *br = dev_get_brnana_if(dev);
+    struct brnana_if *br = dev_get_brnana_if(dev);
 
-	return brnana_add_port(br, slave_dev, extack);
+    return brnana_add_port(br, slave_dev, extack);
 }
 
 /**
@@ -246,9 +246,9 @@ static int brnana_add_slave(struct net_device *dev,
 static int brnana_del_slave(struct net_device *dev,
                             struct net_device *slave_dev)
 {
-	struct brnana_if *br = dev_get_brnana_if(dev);
+    struct brnana_if *br = dev_get_brnana_if(dev);
 
-	return brnana_del_port(br, slave_dev);
+    return brnana_del_port(br, slave_dev);
 }
 
 /**
@@ -260,15 +260,26 @@ static int brnana_del_slave(struct net_device *dev,
  * such as interface bring-up/down, packet transmission, slave management, etc.
  */
 static const struct net_device_ops brnana_netdev_ops = {
-	.ndo_open            = brnana_dev_open,         /** Called when the interface is brought up (e.g., `ip link set up`) */
-	.ndo_stop            = brnana_dev_stop,         /** Called when the interface is brought down */
-	.ndo_init            = brnana_dev_init,         /** Called during device registration for one-time setup */
-	.ndo_uninit          = brnana_dev_uninit,       /** Called during device unregistration for cleanup */
-	.ndo_start_xmit      = brnana_dev_xmit,         /** Called to transmit a packet (called from upper layers) */
-	.ndo_get_stats64     = dev_get_tstats64,        /** Default implementation for fetching 64-bit interface stats */
-	.ndo_set_mac_address = brnana_set_mac_address,  /** Called to set a new MAC address on the bridge */
-	.ndo_add_slave       = brnana_add_slave,        /** Called when a slave is attached (e.g., `ip link set dev dummy0 master brnana0`) */
-	.ndo_del_slave       = brnana_del_slave,        /** Called when a slave is detached (e.g., `ip link set dev dummy0 nomaster`) */
+    /** Called when the interface is brought up (e.g., `ip link set up`) */
+    .ndo_open = brnana_dev_open,
+    /** Called when the interface is brought down */
+    .ndo_stop = brnana_dev_stop,
+    /** Called during device registration for one-time setup */
+    .ndo_init = brnana_dev_init,
+    /** Called during device unregistration for cleanup */
+    .ndo_uninit = brnana_dev_uninit,
+    /** Called to transmit a packet (called from upper layers) */
+    .ndo_start_xmit = brnana_dev_xmit,
+    /** Default implementation for fetching 64-bit interface stats */
+    .ndo_get_stats64 = dev_get_tstats64,
+    /** Called to set a new MAC address on the bridge */
+    .ndo_set_mac_address = brnana_set_mac_address,
+    /** Called when a slave is attached (e.g., `ip link set dev dummy0 master
+       brnana0`) */
+    .ndo_add_slave = brnana_add_slave,
+    /** Called when a slave is detached (e.g., `ip link set dev dummy0
+       nomaster`) */
+    .ndo_del_slave = brnana_del_slave,
 };
 
 /**
@@ -281,15 +292,16 @@ static const struct net_device_ops brnana_netdev_ops = {
  * (e.g., dummy0, eth1) to the brnana bridge (e.g., brnana0) using
  * `ip link set dev <ifname> master brnana0`.
  *
- * It dynamically allocates a port structure, links it into the bridge's port list,
- * and sets up the appropriate kernel relationships via netlink.
+ * It dynamically allocates a port structure, links it into the bridge's port
+ * list, and sets up the appropriate kernel relationships via netlink.
  *
  * The function must be called with the RTNL lock held.
  *
  * Return:
  *   0 on success, or a negative errno on failure.
  */
-int brnana_add_port(struct brnana_if *br, struct net_device *dev,
+int brnana_add_port(struct brnana_if *br,
+                    struct net_device *dev,
                     struct netlink_ext_ack *extack)
 {
     struct brnana_port_if *p;
@@ -311,19 +323,22 @@ int brnana_add_port(struct brnana_if *br, struct net_device *dev,
     }
 
     /**
-     * Allocate and zero-initialize a new brnana_port_if structure for this slave.
+     * Allocate and zero-initialize a new brnana_port_if structure for this
+     * slave.
      */
     p = kzalloc(sizeof(*p), GFP_KERNEL);
     if (!p)
         return -ENOMEM;
 
     /**
-     * Mark the device as part of a bridge. This is optional but helps in diagnostics.
+     * Mark the device as part of a bridge. This is optional but helps in
+     * diagnostics.
      */
     dev->priv_flags |= IFF_BRIDGE_PORT;
 
     /**
-     * Associate the port structure with the slave device using RCU-safe pointer assignment.
+     * Associate the port structure with the slave device using RCU-safe pointer
+     * assignment.
      */
     rcu_assign_pointer(dev->rx_handler_data, p);
 
@@ -339,19 +354,22 @@ int brnana_add_port(struct brnana_if *br, struct net_device *dev,
      */
     list_add_rcu(&p->link, &br->port_list);
 
-    pr_info("C( o . o ) ╯ brnana: enslaved %s to brnana%d\n", dev->name, br->br_id);
+    pr_info("C( o . o ) ╯ brnana: enslaved %s to brnana%d\n", dev->name,
+            br->br_id);
 
     /**
-     * Inform the kernel's net_device core that this device now has a master (the bridge).
-     * This ensures that `ip link` and sysfs reflect the correct relationship.
+     * Inform the kernel's net_device core that this device now has a master
+     * (the bridge). This ensures that `ip link` and sysfs reflect the correct
+     * relationship.
      */
     int err = netdev_master_upper_dev_link(dev, br->dev, NULL, NULL, extack);
     if (err) {
-        pr_warn("brnana: failed to link %s to %s as master: %d\n",
-                dev->name, br->dev->name, err);
+        pr_warn("brnana: failed to link %s to %s as master: %d\n", dev->name,
+                br->dev->name, err);
 
         /**
-         * If the upper device link failed, clean up the partially added port structure.
+         * If the upper device link failed, clean up the partially added port
+         * structure.
          */
         list_del_rcu(&p->link);
         RCU_INIT_POINTER(dev->rx_handler_data, NULL);
@@ -402,12 +420,13 @@ int brnana_del_port(struct brnana_if *br, struct net_device *dev)
      */
     p = rcu_dereference(dev->rx_handler_data);
     if (!p) {
-        pr_warn("C( o . o ) ╯ brnana: device %s is not a brnana port\n", dev->name);
+        pr_warn("C( o . o ) ╯ brnana: device %s is not a brnana port\n",
+                dev->name);
         return -ENODEV;
     }
 
-    pr_info("C( o . o ) ╯ brnana: removing port %s from brnana%d\n",
-            dev->name, br->br_id);
+    pr_info("C( o . o ) ╯ brnana: removing port %s from brnana%d\n", dev->name,
+            br->br_id);
 
     /**
      * If a custom RX handler was registered to intercept packets on the slave,
@@ -421,7 +440,8 @@ int brnana_del_port(struct brnana_if *br, struct net_device *dev)
     list_del_rcu(&p->link);
 
     /**
-     * Clear the RX handler data so that the device is no longer marked as enslaved.
+     * Clear the RX handler data so that the device is no longer marked as
+     * enslaved.
      */
     RCU_INIT_POINTER(dev->rx_handler_data, NULL);
 
@@ -454,8 +474,8 @@ static int brnana_add_br(int idx)
     struct net_device *dev = NULL;
 
     /**
-     * Allocate a new Ethernet device with private data of type struct brnana_if.
-     * The device name format is defined by BR_NAME ("brnana%d").
+     * Allocate a new Ethernet device with private data of type struct
+     * brnana_if. The device name format is defined by BR_NAME ("brnana%d").
      */
     dev = alloc_netdev(sizeof(struct brnana_if), BR_NAME, NET_NAME_ENUM,
                        ether_setup);
@@ -521,7 +541,9 @@ static int __init brnana_init(void)
      */
     brnana = kmalloc(sizeof(struct brnana_content), GFP_KERNEL);
     if (!brnana) {
-        pr_err("C( o . o ) ╯ brnana: Couldn't allocate space for brnana_content\n");
+        pr_err(
+            "C( o . o ) ╯ brnana: Couldn't allocate space for "
+            "brnana_content\n");
         return -ENOMEM;
     }
 
@@ -559,7 +581,7 @@ static void __exit brnana_exit(void)
      * unregister and free the bridge device itself.
      */
     struct brnana_if *br = NULL, *safe1 = NULL;
-    list_for_each_entry_safe(br, safe1, &brnana->br_list, link) {
+    list_for_each_entry_safe (br, safe1, &brnana->br_list, link) {
         struct brnana_port_if *p, *safe2;
 
         /**
@@ -567,11 +589,11 @@ static void __exit brnana_exit(void)
          * from the bridge's port list. Clear its RX handler, wait for
          * any RCU readers to finish, and then free the memory.
          */
-        list_for_each_entry_safe(p, safe2, &br->port_list, link) {
+        list_for_each_entry_safe (p, safe2, &br->port_list, link) {
             list_del_rcu(&p->link);
             RCU_INIT_POINTER(p->dev->rx_handler_data, NULL);
-            synchronize_rcu();  /* Ensure no readers are using p */
-            kfree(p);           /* Free port memory */
+            synchronize_rcu(); /* Ensure no readers are using p */
+            kfree(p);          /* Free port memory */
         }
 
         /**

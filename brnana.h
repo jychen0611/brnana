@@ -6,10 +6,10 @@
  * used by the brnana bridge kernel module.
  */
 
-#include <linux/kernel.h>         /** Core kernel definitions */
-#include <linux/module.h>         /** Module macros and interfaces */
-#include <linux/netdevice.h>      /** Network device structures */
-#include <linux/etherdevice.h>    /** Ethernet-specific helpers */
+#include <linux/etherdevice.h> /** Ethernet-specific helpers */
+#include <linux/kernel.h>      /** Core kernel definitions */
+#include <linux/module.h>      /** Module macros and interfaces */
+#include <linux/netdevice.h>   /** Network device structures */
 
 /** Default bridge interface name pattern */
 #define BR_NAME "brnana%d"
@@ -19,7 +19,7 @@
  * @br_list: A linked list of all registered brnana bridges
  */
 struct brnana_content {
-	struct list_head br_list;  /** List head for all bridge interfaces */
+    struct list_head br_list; /** List head for all bridge interfaces */
 };
 
 /**
@@ -32,12 +32,12 @@ struct brnana_content {
  * @link:         Link to other bridges in brnana_content.br_list
  */
 struct brnana_if {
-	spinlock_t lock;
-	struct net_device *dev;
-	int br_id;
-	unsigned char mac_addr[ETH_ALEN];
-	struct list_head port_list;
-	struct list_head link;
+    spinlock_t lock;
+    struct net_device *dev;
+    int br_id;
+    unsigned char mac_addr[ETH_ALEN];
+    struct list_head port_list;
+    struct list_head link;
 };
 
 /**
@@ -47,9 +47,9 @@ struct brnana_if {
  * @link: Link in the bridge's port_list
  */
 struct brnana_port_if {
-	struct brnana_if *br;
-	struct net_device *dev;
-	struct list_head link;
+    struct brnana_if *br;
+    struct net_device *dev;
+    struct list_head link;
 };
 
 /**
@@ -60,7 +60,8 @@ struct brnana_port_if {
  *
  * Return: 0 on success, or a negative errno value on failure.
  */
-int brnana_add_port(struct brnana_if *br, struct net_device *dev,
+int brnana_add_port(struct brnana_if *br,
+                    struct net_device *dev,
                     struct netlink_ext_ack *extack);
 
 /**
